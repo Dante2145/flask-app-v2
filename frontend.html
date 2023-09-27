@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Domain Scanner</title>
+</head>
+
+<body>
+
+
+    <h1> My Domain Scanner </h1>
+
+
+    <form id="scanForm">
+        <input type="text" id="domain" name="domain" placeholder="Enter domain">
+        <button type="submit">Scan</button>
+    </form>
+    <div id="response"></div>
+
+  <!-- Add a link to the scanned domains page -->
+    <a href="/scanned_domains">View Scanned Domains</a>
+
+    <script>
+        document.getElementById("scanForm").onsubmit = function(event){
+            event.preventDefault();
+            let domain = document.getElementById("domain").value;
+            fetch("/scan", {
+                method: "POST",
+                body: new FormData(scanForm)
+            })
+            .then(response => response.json())
+            .then(data => {
+        document.getElementById("response").innerText = "Scanning in progress...";
+                let taskId = data.task_id;
+                let intervalId = setInterval(() => {
+                    fetch("/scan_status/" + taskId)
+                    .then(response => response.json())
+                    .then(statusData => {
+                        if (statusData.status === 'SUCCESS') {
+                            clearInterval(intervalId);
+                            document.getElementById("response").innerText = "Scanning complete!";
+                            window.location.href = `/results?domain=${domain}`; // Redirect to results page
+                        }
+                    });
+                }, 2000); // Poll every 2 seconds
+            });
+        }
+
+        function scanDomain() {
+        var domain = document.getElementById("domain").value;
+        fetch("/scan", {
+            method: "POST",
+            body: new URLSearchParams({ "domain": domain }),
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            }
+        })
+        .then(data => {
+            document.getElementById("response").innerText = "Scanning in progress...";
+            let pdf_link = "/view_pdf/" + domain;
+            document.getElementById("response").innerHTML += '<br><a href="' + pdf_link + '" target="_blank">View SSLyze Results</a>';
+        });
+    }
+
+
+    </script>
+</body>
+</html>
+
+
+
+
+
+

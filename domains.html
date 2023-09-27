@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Scanned Domains</title>
+</head>
+<body>
+    <h1>Scanned Domains</h1>
+    <ul>
+        {% for domain in domains %}
+            <li><a href="{{ url_for('get_results', domain=domain) }}">{{ domain }}</a></li>
+        {% endfor %}
+    </ul>
+<!-- At the bottom or top of the file -->
+<a href="/">Back to Scanner </a>
+
+</body>
+</html>
